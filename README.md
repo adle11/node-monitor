@@ -1,2 +1,2 @@
-# time-service
+# node-monitor
 Simple Java NodeMonitor
