@@ -1,0 +1,60 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: nodemonitor
+  labels:
+    app: nodemonitor
+    verision: 0.0.1
+spec:
+  selector:
+    app: nodemonitor
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30081
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodemonitor
+  labels:
+    app: nodemonitor
+    verision: 0.0.1
+spec:
+  selector:
+    matchLabels:
+      app: nodemonitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nodemonitor
+        verision: 0.0.1
+    spec:
+      containers:
+        - name: nodemonitor
+          image: nodemonitor:0.0.1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+            - name: MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: nodemonitor-db-config
+                  key: database
+            - name: MONGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: nodemonitor-db-config
+                  key: host
+            - name: MONGO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nodemonitor-db-config
+                  key: port
+

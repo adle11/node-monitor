@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nodemonitordb
+  name: nodemonitordb-service
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: nodemonitordb
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pv-claim
+  labels:
+    app: nodemonitor
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodemonitordb
+  labels:
+    app: nodemonitordb
+spec:
+  selector:
+    matchLabels:
+      app: nodemonitordb
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nodemonitordb
+      name: nodemonitordb-service
+    spec:
+      containers:
+        - image: mongo:latest
+          name: nodemonitordb
+          ports:
+            - containerPort: 27017
+              name: nodemonitordb
+          volumeMounts:
+            - name: mongodb-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-persistent-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pv-claim

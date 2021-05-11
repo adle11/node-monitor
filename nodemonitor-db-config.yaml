@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodemonitor-db-config
+data:
+  host: nodemonitordb-service
+  port: "27017"
+  database: "NodeMonitor"
